@@ -2,16 +2,15 @@
 
 #define TAM 10
 #define NAVIO_TAM 3
+#define HAB_TAM 5
 
 int main() {
 
-     printf("RODANDO CODIGO NOVO\n");
-    // =========================
-    // TABULEIRO
-    // =========================
     int tabuleiro[TAM][TAM];
 
-    // Inicializa com 0 (água)
+    // =========================
+    // INICIALIZA TABULEIRO
+    // =========================
     for (int i = 0; i < TAM; i++) {
         for (int j = 0; j < TAM; j++) {
             tabuleiro[i][j] = 0;
@@ -19,94 +18,139 @@ int main() {
     }
 
     // =========================
-    // NAVIO (valor 3)
+    // NAVIOS (mesmo do nível anterior)
     // =========================
-    int navio[NAVIO_TAM] = {3, 3, 3};
-
-    // =========================
-    // COORDENADAS (sem conflito)
-    // =========================
+    int navio[NAVIO_TAM] = {3,3,3};
 
     // Horizontal
-    int linhaH = 1, colunaH = 2;
+    for (int i = 0; i < NAVIO_TAM; i++)
+        tabuleiro[1][2+i] = navio[i];
 
     // Vertical
-    int linhaV = 5, colunaV = 0;
+    for (int i = 0; i < NAVIO_TAM; i++)
+        tabuleiro[5+i][0] = navio[i];
 
     // Diagonal ↘
-    int linhaD1 = 0, colunaD1 = 0;
+    for (int i = 0; i < NAVIO_TAM; i++)
+        tabuleiro[0+i][0+i] = navio[i];
 
     // Diagonal ↙
-    int linhaD2 = 0, colunaD2 = 9;
+    for (int i = 0; i < NAVIO_TAM; i++)
+        tabuleiro[0+i][9-i] = navio[i];
 
     // =========================
-    // VALIDAÇÃO DE LIMITES
+    // MATRIZES DE HABILIDADE
     // =========================
-    if (colunaH + NAVIO_TAM > TAM ||
-        linhaV + NAVIO_TAM > TAM ||
-        linhaD1 + NAVIO_TAM > TAM || colunaD1 + NAVIO_TAM > TAM ||
-        linhaD2 + NAVIO_TAM > TAM || colunaD2 - (NAVIO_TAM - 1) < 0) {
 
-        printf("Erro: navio fora do tabuleiro!\n");
-        return 1;
+    int cone[HAB_TAM][HAB_TAM];
+    int cruz[HAB_TAM][HAB_TAM];
+    int octaedro[HAB_TAM][HAB_TAM];
+
+    // CONE (aponta pra baixo)
+    for (int i = 0; i < HAB_TAM; i++) {
+        for (int j = 0; j < HAB_TAM; j++) {
+            if (j >= (HAB_TAM/2 - i) && j <= (HAB_TAM/2 + i))
+                cone[i][j] = 1;
+            else
+                cone[i][j] = 0;
+        }
+    }
+
+    // CRUZ
+    for (int i = 0; i < HAB_TAM; i++) {
+        for (int j = 0; j < HAB_TAM; j++) {
+            if (i == HAB_TAM/2 || j == HAB_TAM/2)
+                cruz[i][j] = 1;
+            else
+                cruz[i][j] = 0;
+        }
+    }
+
+    // OCTAEDRO (losango)
+    for (int i = 0; i < HAB_TAM; i++) {
+        for (int j = 0; j < HAB_TAM; j++) {
+            int centro = HAB_TAM / 2;
+            if (abs(i - centro) + abs(j - centro) <= centro)
+                octaedro[i][j] = 1;
+            else
+                octaedro[i][j] = 0;
+        }
     }
 
     // =========================
-    // NAVIO HORIZONTAL
+    // POSIÇÕES DAS HABILIDADES
     // =========================
-    for (int i = 0; i < NAVIO_TAM; i++) {
-        if (tabuleiro[linhaH][colunaH + i] != 0) {
-            printf("Erro: sobreposição!\n");
-            return 1;
-        }
-        tabuleiro[linhaH][colunaH + i] = navio[i];
-    }
+    int origemConeLinha = 4, origemConeCol = 4;
+    int origemCruzLinha = 7, origemCruzCol = 7;
+    int origemOctLinha = 2, origemOctCol = 7;
 
     // =========================
-    // NAVIO VERTICAL
+    // SOBREPOR HABILIDADES
     // =========================
-    for (int i = 0; i < NAVIO_TAM; i++) {
-        if (tabuleiro[linhaV + i][colunaV] != 0) {
-            printf("Erro: sobreposição!\n");
-            return 1;
+
+    // Cone
+    for (int i = 0; i < HAB_TAM; i++) {
+        for (int j = 0; j < HAB_TAM; j++) {
+
+            int linha = origemConeLinha + i - HAB_TAM/2;
+            int col = origemConeCol + j - HAB_TAM/2;
+
+            if (linha >= 0 && linha < TAM && col >= 0 && col < TAM) {
+                if (cone[i][j] == 1 && tabuleiro[linha][col] == 0) {
+                    tabuleiro[linha][col] = 5;
+                }
+            }
         }
-        tabuleiro[linhaV + i][colunaV] = navio[i];
     }
 
-    // =========================
-    // NAVIO DIAGONAL ↘
-    // =========================
-    for (int i = 0; i < NAVIO_TAM; i++) {
-        if (tabuleiro[linhaD1 + i][colunaD1 + i] != 0) {
-            printf("Erro: sobreposição!\n");
-            return 1;
+    // Cruz
+    for (int i = 0; i < HAB_TAM; i++) {
+        for (int j = 0; j < HAB_TAM; j++) {
+
+            int linha = origemCruzLinha + i - HAB_TAM/2;
+            int col = origemCruzCol + j - HAB_TAM/2;
+
+            if (linha >= 0 && linha < TAM && col >= 0 && col < TAM) {
+                if (cruz[i][j] == 1 && tabuleiro[linha][col] == 0) {
+                    tabuleiro[linha][col] = 5;
+                }
+            }
         }
-        tabuleiro[linhaD1 + i][colunaD1 + i] = navio[i];
     }
 
-    // =========================
-    // NAVIO DIAGONAL ↙
-    // =========================
-    for (int i = 0; i < NAVIO_TAM; i++) {
-        if (tabuleiro[linhaD2 + i][colunaD2 - i] != 0) {
-            printf("Erro: sobreposição!\n");
-            return 1;
+    // Octaedro
+    for (int i = 0; i < HAB_TAM; i++) {
+        for (int j = 0; j < HAB_TAM; j++) {
+
+            int linha = origemOctLinha + i - HAB_TAM/2;
+            int col = origemOctCol + j - HAB_TAM/2;
+
+            if (linha >= 0 && linha < TAM && col >= 0 && col < TAM) {
+                if (octaedro[i][j] == 1 && tabuleiro[linha][col] == 0) {
+                    tabuleiro[linha][col] = 5;
+                }
+            }
         }
-        tabuleiro[linhaD2 + i][colunaD2 - i] = navio[i];
     }
 
     // =========================
     // EXIBIR TABULEIRO
     // =========================
-    printf("\nTabuleiro:\n\n");
+    printf("\nTabuleiro Final:\n\n");
 
     for (int i = 0; i < TAM; i++) {
         for (int j = 0; j < TAM; j++) {
-            printf("%d ", tabuleiro[i][j]);
+
+            if (tabuleiro[i][j] == 0)
+                printf("~ "); // água
+            else if (tabuleiro[i][j] == 3)
+                printf("N "); // navio
+            else if (tabuleiro[i][j] == 5)
+                printf("* "); // habilidade
+
         }
         printf("\n");
     }
 
     return 0;
 }
-
