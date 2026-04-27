@@ -5,12 +5,13 @@
 
 int main() {
 
+     printf("RODANDO CODIGO NOVO\n");
     // =========================
-    // TABULEIRO 10x10
+    // TABULEIRO
     // =========================
     int tabuleiro[TAM][TAM];
 
-    // Inicializa tudo com 0 (água)
+    // Inicializa com 0 (água)
     for (int i = 0; i < TAM; i++) {
         for (int j = 0; j < TAM; j++) {
             tabuleiro[i][j] = 0;
@@ -18,52 +19,80 @@ int main() {
     }
 
     // =========================
-    // NAVIOS (vetores)
+    // NAVIO (valor 3)
     // =========================
-    int navioHorizontal[NAVIO_TAM] = {3, 3, 3};
-    int navioVertical[NAVIO_TAM] = {3, 3, 3};
+    int navio[NAVIO_TAM] = {3, 3, 3};
 
     // =========================
-    // COORDENADAS INICIAIS
+    // COORDENADAS (sem conflito)
     // =========================
-    int linhaH = 2, colunaH = 3; // horizontal
-    int linhaV = 5, colunaV = 1; // vertical
+
+    // Horizontal
+    int linhaH = 1, colunaH = 2;
+
+    // Vertical
+    int linhaV = 5, colunaV = 0;
+
+    // Diagonal ↘
+    int linhaD1 = 0, colunaD1 = 0;
+
+    // Diagonal ↙
+    int linhaD2 = 0, colunaD2 = 9;
 
     // =========================
-    // VALIDAÇÃO SIMPLES (limite)
+    // VALIDAÇÃO DE LIMITES
     // =========================
-    if (colunaH + NAVIO_TAM > TAM) {
-        printf("Erro: navio horizontal sai do tabuleiro!\n");
+    if (colunaH + NAVIO_TAM > TAM ||
+        linhaV + NAVIO_TAM > TAM ||
+        linhaD1 + NAVIO_TAM > TAM || colunaD1 + NAVIO_TAM > TAM ||
+        linhaD2 + NAVIO_TAM > TAM || colunaD2 - (NAVIO_TAM - 1) < 0) {
+
+        printf("Erro: navio fora do tabuleiro!\n");
         return 1;
     }
 
-    if (linhaV + NAVIO_TAM > TAM) {
-        printf("Erro: navio vertical sai do tabuleiro!\n");
-        return 1;
+    // =========================
+    // NAVIO HORIZONTAL
+    // =========================
+    for (int i = 0; i < NAVIO_TAM; i++) {
+        if (tabuleiro[linhaH][colunaH + i] != 0) {
+            printf("Erro: sobreposição!\n");
+            return 1;
+        }
+        tabuleiro[linhaH][colunaH + i] = navio[i];
     }
 
     // =========================
-    // POSICIONAR NAVIO HORIZONTAL
+    // NAVIO VERTICAL
     // =========================
     for (int i = 0; i < NAVIO_TAM; i++) {
-        if (tabuleiro[linhaH][colunaH + i] == 0) {
-            tabuleiro[linhaH][colunaH + i] = navioHorizontal[i];
-        } else {
-            printf("Erro: sobreposição de navios!\n");
+        if (tabuleiro[linhaV + i][colunaV] != 0) {
+            printf("Erro: sobreposição!\n");
             return 1;
         }
+        tabuleiro[linhaV + i][colunaV] = navio[i];
     }
 
     // =========================
-    // POSICIONAR NAVIO VERTICAL
+    // NAVIO DIAGONAL ↘
     // =========================
     for (int i = 0; i < NAVIO_TAM; i++) {
-        if (tabuleiro[linhaV + i][colunaV] == 0) {
-            tabuleiro[linhaV + i][colunaV] = navioVertical[i];
-        } else {
-            printf("Erro: sobreposição de navios!\n");
+        if (tabuleiro[linhaD1 + i][colunaD1 + i] != 0) {
+            printf("Erro: sobreposição!\n");
             return 1;
         }
+        tabuleiro[linhaD1 + i][colunaD1 + i] = navio[i];
+    }
+
+    // =========================
+    // NAVIO DIAGONAL ↙
+    // =========================
+    for (int i = 0; i < NAVIO_TAM; i++) {
+        if (tabuleiro[linhaD2 + i][colunaD2 - i] != 0) {
+            printf("Erro: sobreposição!\n");
+            return 1;
+        }
+        tabuleiro[linhaD2 + i][colunaD2 - i] = navio[i];
     }
 
     // =========================
@@ -80,3 +109,4 @@ int main() {
 
     return 0;
 }
+
